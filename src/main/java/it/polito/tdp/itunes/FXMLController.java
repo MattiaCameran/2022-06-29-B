@@ -5,7 +5,11 @@
 package it.polito.tdp.itunes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.itunes.model.Album;
+import it.polito.tdp.itunes.model.AlbumBilancio;
 import it.polito.tdp.itunes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -34,10 +38,10 @@ public class FXMLController {
     private Button btnPercorso; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA1"
-    private ComboBox<?> cmbA1; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA2"
-    private ComboBox<?> cmbA2; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -51,17 +55,81 @@ public class FXMLController {
     @FXML
     void doCalcolaAdiacenze(ActionEvent event) {
     	
+    	Album a = this.cmbA1.getValue();
+    	
+    	if(a == null) {
+    		txtResult.appendText("Selezionare un album");
+    		return;
+    	}
+    	else {
+    		List<AlbumBilancio> lista = this.model.getCammino(a);
+    		
+    		for(AlbumBilancio a1: lista) {
+    			txtResult.appendText(a1.toString()+"\n");
+    		}
+    	}
+    	
     }
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
     	
+    	txtResult.clear();
+    	Album a1 = this.cmbA1.getValue();
+    	Album a2 = this.cmbA2.getValue();
+    	
+    	if(a1 == null) {
+    		txtResult.appendText("Errore: selezionare un album");
+    		return;
+    	}
+    	else if(a2 == null) {
+    		txtResult.appendText("Errore: selezionare un album");
+    		return;
+    	}
+    	
+    	String tx = txtX.getText();
+    	int x;
+    	try {
+    		x = Integer.parseInt(tx);
+    	}catch(NumberFormatException n) {
+    		txtResult.appendText("Inserire un x numerico");
+    		return;
+    	}
+    	
+    	 
+    	List<Album> lista = this.model.calcolaPercorso(a1, a2, x);
+    	
+    	for(Album a: lista) {
+    		txtResult.appendText(a.toString() + "\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	
-    }
+    	txtResult.clear();
+    	String testo = txtN.getText();
+    	int n;
+    	if(testo == null) {
+    		txtResult.appendText("Errore: inserire un valore n");
+    		return;
+    	}
+    	
+    	try {
+    		n = Integer.parseInt(testo);
+    		
+    	}catch (NumberFormatException nfe) {
+    		txtResult.appendText("Errore: inserire un valore numerico intero");
+    		return;
+    		}
+    	
+    		String msg = this.model.creaGrafo(n);
+    		txtResult.appendText(msg);
+    		
+    		this.cmbA1.getItems().addAll(this.model.getAlbum());
+    		this.cmbA2.getItems().addAll(this.model.getAlbum());
+    		
+    	}
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
